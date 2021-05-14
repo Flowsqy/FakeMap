@@ -1,9 +1,11 @@
 package fr.flowsqy.fakemap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class FakeMap {
@@ -81,6 +83,42 @@ public class FakeMap {
 
     private static final class Unsafe {
 
+        public static Object createPacket() throws InvocationTargetException, InstantiationException, IllegalAccessException {
+            return packetConstructor.newInstance();
+        }
+
+        public static void initPacket(
+                Object packet,
+                int mapId,
+                byte scale,
+                boolean trackingPosition,
+                boolean locked,
+                Object[] decorations,
+                int startX,
+                int startY,
+                int width,
+                int height,
+                byte[] mapColors
+        ) throws IllegalAccessException {
+            mapIdField.setInt(packet, mapId);
+            scaleField.setByte(packet, scale);
+            trackingPositionField.setBoolean(packet, trackingPosition);
+            lockedField.setBoolean(packet, locked);
+            decorationsField.set(packet, decorations);
+            startXField.setInt(packet, startX);
+            startYField.setInt(packet, startY);
+            widthField.setInt(packet, width);
+            heightField.setInt(packet, height);
+            mapColorsField.set(packet, mapColors);
+        }
+
+        public static Object getConnection(Player player) throws InvocationTargetException, IllegalAccessException {
+            return playerConnectionField.get(handleMethod.invoke(player));
+        }
+
+        public static void sendPacket(Object connection, Object packet) throws InvocationTargetException, IllegalAccessException {
+            sendPacketMethod.invoke(connection, packet);
+        }
 
     }
 
