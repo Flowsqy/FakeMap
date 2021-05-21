@@ -2,11 +2,15 @@ package fr.flowsqy.fakemap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapCursor;
+import org.bukkit.map.MapCursorCollection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class FakeMap {
 
@@ -85,6 +89,37 @@ public class FakeMap {
 
         public static Object createPacket() throws InvocationTargetException, InstantiationException, IllegalAccessException {
             return packetConstructor.newInstance();
+        }
+
+        public static Object getCursor(MapCursor cursor) {
+            return null;//new MapDecoration()
+        }
+
+        public static Object[] getCursors(MapCursor... cursors) {
+            Objects.requireNonNull(cursors);
+            final Object[] decorations = new Object[cursors.length];
+            for (int i = 0; i < cursors.length; i++) {
+                decorations[i] = getCursor(cursors[i]);
+            }
+            return decorations;
+        }
+
+        public static Object[] getCursors(Iterable<MapCursor> cursors) {
+            Objects.requireNonNull(cursors);
+            final ArrayList<Object> decorations = new ArrayList<>();
+            for (MapCursor cursor : cursors) {
+                decorations.add(getCursor(cursor));
+            }
+            return decorations.toArray();
+        }
+
+        public static Object[] getCursors(MapCursorCollection cursors) {
+            Objects.requireNonNull(cursors);
+            final Object[] decorations = new Object[cursors.size()];
+            for (int i = 0; i < cursors.size(); i++) {
+                decorations[i] = getCursor(cursors.getCursor(i));
+            }
+            return decorations;
         }
 
         public static void initPacket(
