@@ -5,10 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursorCollection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -46,6 +43,7 @@ public class FakeMap {
     byte[] j;       mapColors
      */
     // Map Icon
+    private final static Class<?> mapIconClass;
     private final static Constructor<?> mapIconConstructor;
     // Cursor Type
     private final static Object PLAYER;
@@ -121,7 +119,7 @@ public class FakeMap {
             // MapIcon
 
             // Class
-            final Class<?> mapIconClass = Class.forName("net.minecraft.server." + versionName + ".MapIcon");
+            mapIconClass = Class.forName("net.minecraft.server." + versionName + ".MapIcon");
 
             // Types
             final Class<?>[] iconSubClasses = mapIconClass.getDeclaredClasses();
@@ -180,7 +178,7 @@ public class FakeMap {
         }
     }
 
-    private static final class Unsafe {
+    public static final class Unsafe {
 
         public static Object createPacket() throws InvocationTargetException, InstantiationException, IllegalAccessException {
             return packetConstructor.newInstance();
@@ -259,33 +257,37 @@ public class FakeMap {
                     cursor.getX(),
                     cursor.getY(),
                     cursor.getDirection(),
-                    chatComponentTextConstructor.newInstance(cursor.getCaption())
+                    cursor.getCaption() == null ? null : chatComponentTextConstructor.newInstance(cursor.getCaption())
             );
         }
 
-        public static Object[] getCursors(MapCursor... cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        public static Object getCursors(MapCursor... cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
-            final Object[] decorations = new Object[cursors.length];
+            final Object decorations = Array.newInstance(mapIconClass, cursors.length);
             for (int i = 0; i < cursors.length; i++) {
-                decorations[i] = getCursor(cursors[i]);
+                Array.set(decorations, i, getCursor(cursors[i]));
             }
             return decorations;
         }
 
-        public static Object[] getCursors(Iterable<MapCursor> cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        public static Object getCursors(Iterable<MapCursor> cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
             final ArrayList<Object> decorations = new ArrayList<>();
             for (MapCursor cursor : cursors) {
                 decorations.add(getCursor(cursor));
             }
-            return decorations.toArray();
+            final Object array = Array.newInstance(mapIconClass, decorations.size());
+            for (int i = 0; i < decorations.size(); i++) {
+                Array.set(array, i, decorations.get(i));
+            }
+            return array;
         }
 
-        public static Object[] getCursors(MapCursorCollection cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        public static Object getCursors(MapCursorCollection cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
-            final Object[] decorations = new Object[cursors.size()];
+            final Object decorations = Array.newInstance(mapIconClass, cursors.size());
             for (int i = 0; i < cursors.size(); i++) {
-                decorations[i] = getCursor(cursors.getCursor(i));
+                Array.set(decorations, i, getCursor(cursors.getCursor(i)));
             }
             return decorations;
         }
@@ -296,7 +298,7 @@ public class FakeMap {
                 byte scale,
                 boolean trackingPosition,
                 boolean locked,
-                Object[] decorations,
+                Object decorations,
                 int startX,
                 int startY,
                 int width,
