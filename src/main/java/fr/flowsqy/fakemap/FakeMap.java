@@ -75,6 +75,8 @@ public class FakeMap {
     private final static Object BANNER_RED;
     private final static Object BANNER_BLACK;
     private final static Object RED_X;
+    // ChatComponent
+    private final static Constructor<?> chatComponentTextConstructor;
 
 
     static {
@@ -163,9 +165,15 @@ public class FakeMap {
             // IChatBaseComponent class
             final Class<?> iChatBaseComponentClass = Class.forName("net.minecraft.server." + versionName + ".IChatBaseComponent");
 
+            // ChatComponentText constructor
+            final Class<?> chatComponentTextClass = Class.forName("net.minecraft.server." + versionName + ".ChatComponentText");
+            chatComponentTextConstructor = chatComponentTextClass.getDeclaredConstructor(String.class);
+            chatComponentTextConstructor.setAccessible(true);
+
             // MapIcon Constructor
             mapIconConstructor = mapIconClass.getDeclaredConstructor(typeClass, byte.class, byte.class, byte.class, iChatBaseComponentClass);
             mapIconConstructor.setAccessible(true);
+
 
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -245,11 +253,17 @@ public class FakeMap {
             }
         }
 
-        public static Object getCursor(MapCursor cursor) {
-            return null;//new MapIcon()
+        public static Object getCursor(MapCursor cursor) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+            return mapIconConstructor.newInstance(
+                    getType(cursor.getType()),
+                    cursor.getX(),
+                    cursor.getY(),
+                    cursor.getDirection(),
+                    chatComponentTextConstructor.newInstance(cursor.getCaption())
+            );
         }
 
-        public static Object[] getCursors(MapCursor... cursors) {
+        public static Object[] getCursors(MapCursor... cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
             final Object[] decorations = new Object[cursors.length];
             for (int i = 0; i < cursors.length; i++) {
@@ -258,7 +272,7 @@ public class FakeMap {
             return decorations;
         }
 
-        public static Object[] getCursors(Iterable<MapCursor> cursors) {
+        public static Object[] getCursors(Iterable<MapCursor> cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
             final ArrayList<Object> decorations = new ArrayList<>();
             for (MapCursor cursor : cursors) {
@@ -267,7 +281,7 @@ public class FakeMap {
             return decorations.toArray();
         }
 
-        public static Object[] getCursors(MapCursorCollection cursors) {
+        public static Object[] getCursors(MapCursorCollection cursors) throws InvocationTargetException, InstantiationException, IllegalAccessException {
             Objects.requireNonNull(cursors);
             final Object[] decorations = new Object[cursors.size()];
             for (int i = 0; i < cursors.size(); i++) {
