@@ -6,6 +6,20 @@ import org.bukkit.map.MapCursorCollection;
 
 public interface MapPacket {
 
+    /**
+     * Initialize the packet
+     *
+     * @param mapId            The id of the map
+     * @param scale            The scale of the map
+     * @param trackingPosition If the map should track players
+     * @param locked           If the map is locked
+     * @param cursors          The cursors on the map
+     * @param startX           The x starting position of colors data
+     * @param startY           The y starting position of colors data
+     * @param width            The width on the map to update
+     * @param height           The height on the map to update
+     * @param mapColors        The map colors data
+     */
     void init(
             int mapId,
             byte scale,
@@ -19,6 +33,20 @@ public interface MapPacket {
             byte[] mapColors
     );
 
+    /**
+     * Initialize the packet
+     *
+     * @param mapId            The id of the map
+     * @param scale            The scale of the map
+     * @param trackingPosition If the map should track players
+     * @param locked           If the map is locked
+     * @param cursors          The cursors on the map
+     * @param startX           The x starting position of colors data
+     * @param startY           The y starting position of colors data
+     * @param width            The width on the map to update
+     * @param height           The height on the map to update
+     * @param mapColors        The map colors data
+     */
     void init(
             int mapId,
             byte scale,
@@ -32,6 +60,20 @@ public interface MapPacket {
             byte[] mapColors
     );
 
+    /**
+     * Initialize the packet
+     *
+     * @param mapId            The id of the map
+     * @param scale            The scale of the map
+     * @param trackingPosition If the map should track players
+     * @param locked           If the map is locked
+     * @param cursors          The cursors on the map
+     * @param startX           The x starting position of colors data
+     * @param startY           The y starting position of colors data
+     * @param width            The width on the map to update
+     * @param height           The height on the map to update
+     * @param mapColors        The map colors data
+     */
     void init(
             int mapId,
             byte scale,
@@ -45,6 +87,11 @@ public interface MapPacket {
             byte[] mapColors
     );
 
+    /**
+     * Send the packet to players
+     *
+     * @param players The players who will receive the packet
+     */
     void send(Iterable<Player> players);
 
 }
