@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCursor;
 import org.bukkit.map.MapCursorCollection;
+import org.bukkit.map.MapView;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -75,12 +76,16 @@ public class FakeMap {
     private final static Object RED_X;
     // ChatComponent
     private final static Constructor<?> chatComponentTextConstructor;
-
+    // Colors data
+    private final static Field worldMapField;
+    private final static Field colorsField;
 
     static {
         try {
             final String versionName = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            final Class<?> mapPacketClass = Class.forName("net.minecraft.server." + versionName + ".PacketPlayOutMap");
+            final String nms = "net.minecraft.server." + versionName + ".";
+            final String craftbukkit = "org.bukkit.craftbukkit." + versionName + ".";
+            final Class<?> mapPacketClass = Class.forName(nms + "PacketPlayOutMap");
             packetConstructor = mapPacketClass.getConstructor();
             mapIdField = mapPacketClass.getDeclaredField("a");
             scaleField = mapPacketClass.getDeclaredField("b");
@@ -93,12 +98,12 @@ public class FakeMap {
             heightField = mapPacketClass.getDeclaredField("i");
             mapColorsField = mapPacketClass.getDeclaredField("j");
 
-            final Class<?> playerClass = Class.forName("org.bukkit.craftbukkit." + versionName + ".entity.CraftPlayer");
+            final Class<?> playerClass = Class.forName(craftbukkit + "entity.CraftPlayer");
             handleMethod = playerClass.getDeclaredMethod("getHandle");
-            final Class<?> entityPlayer = Class.forName("net.minecraft.server." + versionName + ".EntityPlayer");
+            final Class<?> entityPlayer = Class.forName(nms + "EntityPlayer");
             playerConnectionField = entityPlayer.getDeclaredField("playerConnection");
-            final Class<?> playerConnectionClass = Class.forName("net.minecraft.server." + versionName + ".PlayerConnection");
-            final Class<?> packetClass = Class.forName("net.minecraft.server." + versionName + ".Packet");
+            final Class<?> playerConnectionClass = Class.forName(nms + "PlayerConnection");
+            final Class<?> packetClass = Class.forName(nms + "Packet");
             sendPacketMethod = playerConnectionClass.getDeclaredMethod("sendPacket", packetClass);
 
             handleMethod.setAccessible(true);
@@ -119,7 +124,7 @@ public class FakeMap {
             // MapIcon
 
             // Class
-            mapIconClass = Class.forName("net.minecraft.server." + versionName + ".MapIcon");
+            mapIconClass = Class.forName(nms + "MapIcon");
 
             // Types
             final Class<?>[] iconSubClasses = mapIconClass.getDeclaredClasses();
@@ -127,7 +132,7 @@ public class FakeMap {
                     .filter(clazz -> clazz.getSimpleName().equals("Type"))
                     .findAny();
             if (!optionalTypeClass.isPresent()) {
-                throw new ClassNotFoundException("Can not find net.minecraft.server." + versionName + ".MapIcon.Type class");
+                throw new ClassNotFoundException("Can not find " + nms + "MapIcon.Type class");
             }
 
             final Class<?> typeClass = optionalTypeClass.get();
@@ -161,10 +166,10 @@ public class FakeMap {
             RED_X = Unsafe.getNMSType(typeClass, "RED_X");
 
             // IChatBaseComponent class
-            final Class<?> iChatBaseComponentClass = Class.forName("net.minecraft.server." + versionName + ".IChatBaseComponent");
+            final Class<?> iChatBaseComponentClass = Class.forName(nms + "IChatBaseComponent");
 
             // ChatComponentText constructor
-            final Class<?> chatComponentTextClass = Class.forName("net.minecraft.server." + versionName + ".ChatComponentText");
+            final Class<?> chatComponentTextClass = Class.forName(nms + "ChatComponentText");
             chatComponentTextConstructor = chatComponentTextClass.getDeclaredConstructor(String.class);
             chatComponentTextConstructor.setAccessible(true);
 
@@ -172,6 +177,15 @@ public class FakeMap {
             mapIconConstructor = mapIconClass.getDeclaredConstructor(typeClass, byte.class, byte.class, byte.class, iChatBaseComponentClass);
             mapIconConstructor.setAccessible(true);
 
+            // Colors data
+            final Class<?> craftMapViewClass = Class.forName(craftbukkit + "map.CraftMapView");
+            final Class<?> worldMapClass = Class.forName(nms + "WorldMap");
+
+            worldMapField = craftMapViewClass.getDeclaredField("worldMap");
+            colorsField = worldMapClass.getDeclaredField("colors");
+
+            worldMapField.setAccessible(true);
+            colorsField.setAccessible(true);
 
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -323,6 +337,10 @@ public class FakeMap {
 
         public static void sendPacket(Object connection, Object packet) throws InvocationTargetException, IllegalAccessException {
             sendPacketMethod.invoke(connection, packet);
+        }
+
+        public static byte[] getColorsData(MapView view) throws IllegalAccessException {
+            return (byte[]) colorsField.get(worldMapField.get(view));
         }
 
     }
