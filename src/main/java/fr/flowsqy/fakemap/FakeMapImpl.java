@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-public class FakeMap {
+public class FakeMapImpl {
 
     // Packet send
     private final static Method handleMethod;
