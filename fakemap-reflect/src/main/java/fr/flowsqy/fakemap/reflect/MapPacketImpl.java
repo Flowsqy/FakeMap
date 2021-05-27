@@ -76,9 +76,6 @@ public class MapPacketImpl implements MapPacket {
     private final static Object RED_X;
     // ChatComponent
     private final static Constructor<?> chatComponentTextConstructor;
-    // Colors data
-    private final static Field worldMapField;
-    private final static Field colorsField;
 
     static {
         try {
@@ -176,16 +173,6 @@ public class MapPacketImpl implements MapPacket {
             // MapIcon Constructor
             mapIconConstructor = mapIconClass.getDeclaredConstructor(typeClass, byte.class, byte.class, byte.class, iChatBaseComponentClass);
             mapIconConstructor.setAccessible(true);
-
-            // Colors data
-            final Class<?> craftMapViewClass = Class.forName(craftbukkit + "map.CraftMapView");
-            final Class<?> worldMapClass = Class.forName(nms + "WorldMap");
-
-            worldMapField = craftMapViewClass.getDeclaredField("worldMap");
-            colorsField = worldMapClass.getDeclaredField("colors");
-
-            worldMapField.setAccessible(true);
-            colorsField.setAccessible(true);
 
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
