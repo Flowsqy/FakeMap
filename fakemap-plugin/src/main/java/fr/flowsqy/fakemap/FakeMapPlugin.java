@@ -1,6 +1,6 @@
 package fr.flowsqy.fakemap;
 
-import fr.flowsqy.fakemap.v1_16_R3.FakeMapImpl;
+import fr.flowsqy.fakemap.reflect.FakeMapImpl;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FakeMapPlugin extends JavaPlugin {

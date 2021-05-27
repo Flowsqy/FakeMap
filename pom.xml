@@ -13,6 +13,7 @@
         <module>fakemap-api</module>
         <module>fakemap-plugin</module>
         <module>fakemap-v1_16_R3</module>
+        <module>fakemap-v1_16_R2</module>
     </modules>
 
     <properties>
