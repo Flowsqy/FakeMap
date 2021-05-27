@@ -28,6 +28,11 @@
             <artifactId>fakemap-reflect</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>fr.flowsqy.fakemap</groupId>
+            <artifactId>fakemap-v1_16_R3</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
