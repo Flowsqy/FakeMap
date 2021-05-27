@@ -2,3 +2,4 @@ name: FakeMap
 author: Flowsqy
 version: ${project.version}
 main: fr.flowsqy.fakemap.FakeMapPlugin
+api-version: "1.16"
