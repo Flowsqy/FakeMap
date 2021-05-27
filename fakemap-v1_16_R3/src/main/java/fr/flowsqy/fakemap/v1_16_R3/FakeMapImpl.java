@@ -1,4 +1,4 @@
-package fr.flowsqy.v1_16_R3;
+package fr.flowsqy.fakemap.v1_16_R3;
 
 import fr.flowsqy.fakemap.FakeMapHandler;
 import fr.flowsqy.fakemap.MapPacket;
