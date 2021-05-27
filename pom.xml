@@ -12,6 +12,7 @@
         <module>fakemap-reflect</module>
         <module>fakemap-api</module>
         <module>fakemap-plugin</module>
+        <module>fakemap-v1_16_R3</module>
     </modules>
 
     <properties>
